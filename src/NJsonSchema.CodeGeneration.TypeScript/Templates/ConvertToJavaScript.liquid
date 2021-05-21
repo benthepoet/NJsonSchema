@@ -18,20 +18,22 @@ if (Array.isArray({{ Value }})) {
 if ({{ Value }}) {
     {{ Variable }} = {};
     for (let key in {{ Value }}) {
-        if ({{ Value }}.hasOwnProperty(key))
+        if ({{ Value }}.hasOwnProperty(key)) {
+            let value = {{ Value }}[key];
 {%     if IsDictionaryValueNewableObject -%}
-            (<any>{{ Variable }})[key] = {{ Value }}[key] ? {{ Value }}[key].toJSON() : <any>{{ NullValue }};
+            (<any>{{ Variable }})[key] = value ? value.toJSON() ?? <any>{{ NullValue }};
 {%     elseif IsDictionaryValueDate -%}
-            (<any>{{ Variable }})[key] = {{ Value }}[key] ? {% if UseJsDate %}formatDate({{ Value }}[key]){% else %}{{ Value }}[key].{{ DateToStringCode }}{% endif %} : <any>{{ NullValue }};
+            (<any>{{ Variable }})[key] = value ? {% if UseJsDate %}formatDate(value){% else %}value.{{ DateToStringCode }}{% endif %} : <any>{{ NullValue }};
 {%     elseif IsDictionaryValueDateTime -%}
-            (<any>{{ Variable }})[key] = {{ Value }}[key] ? {{ Value }}[key].{{ DateTimeToStringCode }} : <any>{{ NullValue }};
+            (<any>{{ Variable }})[key] = value ? value.{{ DateTimeToStringCode }} : <any>{{ NullValue }};
 {%     else -%}
 {%         if NullValue != "undefined" -%}
-            (<any>{{ Variable }})[key] = {{ Value }}[key] !== undefined ? {{ Value }}[key] : <any>{{ NullValue }};
+            (<any>{{ Variable }})[key] = value !== undefined ? value : <any>{{ NullValue }};
 {%         else -%}
-            (<any>{{ Variable }})[key] = {{ Value }}[key];
+            (<any>{{ Variable }})[key] = value;
 {%         endif -%}
 {%     endif -%}
+        }
     }
 }
 {% elseif IsDate -%}
